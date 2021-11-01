@@ -14,6 +14,8 @@ import XMonad.Util.Run
 import XMonad.Util.SpawnOnce
 import XMonad.Hooks.ManageDocks
 
+import qualified  Graphics.X11.ExtraTypes.XF86 as XF86
+import qualified XMonad.Util.Brightness as Bright
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 
@@ -133,9 +135,13 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Run xmessage with a summary of the default keybindings (useful for beginners)
     , ((modm .|. shiftMask, xK_slash ), spawn ("echo \"" ++ help ++ "\" | xmessage -file -"))
+
+    , ((0  ,  XF86.xF86XK_MonBrightnessUp), spawn "light -A 10")
+    
+    , ((0, XF86.xF86XK_MonBrightnessDown), spawn "light -U 10")
     ]
     ++
-
+   
     --
     -- mod-[1..9], Switch to workspace N
     -- mod-shift-[1..9], Move client to workspace N
@@ -152,8 +158,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     [((m .|. modm, key), screenWorkspace sc >>= flip whenJust (windows . f))
         | (key, sc) <- zip [xK_w, xK_e, xK_r] [0..]
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
-
-
+ 
 ------------------------------------------------------------------------
 -- Mouse bindings: default actions bound to mouse events
 --
@@ -255,7 +260,7 @@ myStartupHook = do
 -- Run xmonad with the settings you specify. No need to modify this.
 --
 main = do
-    xmproc <- swapPipe "xmobar -x 0 /home/marcos/.config/xmobar/xmobarrc"
+    xmproc <- spawnPipe "xmobar -x 0 /home/marcos/.config/xmobar/xmobarrc"
     xmonad $ docks defaults
 
 -- A structure containing your configuration settings, overriding
@@ -336,4 +341,8 @@ help = unlines ["The default modifier key is 'alt'. Default keybindings:",
     "-- Mouse bindings: default actions bound to mouse events",
     "mod-button1  Set the window to floating mode and move by dragging",
     "mod-button2  Raise the window to the top of the stack",
-    "mod-button3  Set the window to floating mode and resize by dragging"]
+    "mod-button3  Set the window to floating mode and resize by dragging",
+    "--- NetworkManager commands ",
+    "nmcli device wifi list : para listar las redes edxistentes",
+    "nmcli device wifi conect SSID_or_BSSID pasword password: para conectarse a la red",
+    "nmcli con delete SSID: olvida una connexion existente"]
